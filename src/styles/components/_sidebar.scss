@@ -1,0 +1,157 @@
+$sidebar-color: $fg;
+
+.sidebar {
+  width: 16rem;
+  background: $sidebar-color;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  grid-auto-flow: row;
+  position: relative;
+}
+
+.sidebar__header {
+  margin: 0;
+  padding: 1em;
+}
+
+.sidebar__list {
+  overflow-y: scroll;
+  margin: 0;
+  padding: 0.4em 0;
+}
+
+.sidebar__link {
+  color: inherit;
+}
+
+.sidebar__item {
+  position: relative;
+}
+
+.sidebar__item-content {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  padding: 0.8em;
+  margin: 0;
+
+  &:hover {
+    background: darken($sidebar-color, 10%);
+  }
+
+  &-active {
+    background: lighten($sidebar-color, 10%);
+    color: $primary;
+    font-weight: bold;
+  }
+
+  & > button {
+    display: inherit;
+  }
+}
+
+.sidebar__item-nested {
+  border-left: 0.25em solid $secondary-text-light;
+  margin-left: 0.8em;
+  & p {
+    color: $secondary-text-dark;
+    margin: 0;
+  }
+  position: relative;
+}
+
+.sidebar__addItemContainer {
+  height: 50%;
+  width: 100%;
+  position: absolute;
+
+  &:hover ~ .sidebar__item-content {
+    background: darken($sidebar-color, 10%);
+  }
+
+  & .sidebar__addItemButton {
+    position:absolute;
+    right: 0;
+    display: none;
+    z-index: 2;
+  }
+
+  & .sidebar__item-border {
+    z-index: 1;
+  }
+
+  &.sidebar__addItemContainer-bottom {
+    bottom: 0;
+    & .sidebar__item-border {
+      bottom: 0;
+    }
+
+    &:hover .sidebar__addItemButton {
+      bottom: -1rem;
+      display: block;
+    }
+  }
+  
+  &.sidebar__addItemContainer-top {
+    top: 0;
+    & .sidebar__item-border {
+      top: 0;
+    }
+    &:hover .sidebar__addItemButton {
+      top: -1rem;
+      display: block;
+    }
+  }
+}
+
+.sidebar__expandItemButton {
+  z-index: 3;
+}
+
+.sidebar__addItemButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.5rem;
+  padding: 0;
+  border-radius: 50%;
+  margin-left: auto;
+}
+
+.sidebar__addItemButton:hover {
+  display: flex;
+  background: $primary;
+  color: $text-light;
+
+  & + .sidebar__item-border {
+    border-bottom: 2px solid lighten($primary, 10%);
+  }
+}
+
+.sidebar__item-content:hover {
+  & + .sidebar__addItemButton {
+    display: flex;
+    background: none;
+    color: $secondary-text-dark;
+  }
+}
+
+.sidebar__item-border {
+  margin: 0;
+  padding: 0;
+  height: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.sidebar__footer {
+  padding: 1em;
+  border: 1px solid black;
+}
