@@ -1,5 +1,9 @@
 export interface Chapter {
     id: string,
     title: string,
-    children: Chapter[]
+    text: string
+}
+
+export interface ChapterList extends Omit<Chapter, 'text'> {
+    children: ChapterList[]
 }

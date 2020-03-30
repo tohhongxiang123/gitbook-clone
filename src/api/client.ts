@@ -1,8 +1,14 @@
 import getChapters from './getChapters'
+import getChapter from './getChapter'
+import { Chapter, ChapterList } from '../types/Chapter';
 
 class Api {
-    async getChapters(numberOfChapters: number) {
-        return await getChapters(numberOfChapters ?? Math.floor(Math.random()*1000))
+    getChapters : (numberOfChapters: number) => Promise<ChapterList[]>;
+    getChapter: (chapterID: Chapter['id']) => Promise<Chapter>;
+
+    constructor() {
+        this.getChapters = getChapters
+        this.getChapter = getChapter
     }
 }
 

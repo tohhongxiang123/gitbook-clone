@@ -1,6 +1,6 @@
-import { Chapter } from '../types/Chapter'
+import { ChapterList } from '../types/Chapter'
 
-function generateRandomChapter(depth = 0): Chapter {
+function generateRandomChapter(depth = 0): ChapterList {
     const id = Math.floor(Math.random() * 100000).toString()
     return {
         id,
@@ -9,9 +9,9 @@ function generateRandomChapter(depth = 0): Chapter {
     }
 }
 
-export default async function getChapters(number = 10) : Promise<Chapter[]> {
+export default async function getChapters(number = 10) : Promise<ChapterList[]> {
     return new Promise((resolve, reject) => {
-        const DATA: Chapter[] = []
+        const DATA: ChapterList[] = []
         for (let i = 0; i < number; i++) {
             DATA.push(generateRandomChapter())
         }
