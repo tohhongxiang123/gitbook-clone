@@ -1,6 +1,6 @@
-import { Chapter } from '../types/Chapter'
+import { ChapterPreview } from '../types/Chapter'
 
-export default async function getChapter(chapterID: Chapter['id']) : Promise<Chapter> {
+export default async function getChapter(chapterID: ChapterPreview['id']) : Promise<ChapterPreview> {
     return new Promise((resolve, reject) => {
         setTimeout(() => resolve({
             id: chapterID,

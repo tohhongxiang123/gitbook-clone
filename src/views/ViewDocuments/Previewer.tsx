@@ -7,6 +7,7 @@ export default function Previewer() {
     const { documentID } = useParams<{ documentID: string }>()
     const [{ isLoading, error, data: chapter }] = usePromise((documentID: string) => client.getChapter(documentID), null, documentID)
 
+
     return isLoading ? <p>Loading...</p> : (
         <>
             {error && <p>{error}</p>}

@@ -920,3 +920,28 @@ pre code {
   margin: 0 0.2em 0.25em -1.6em;
   vertical-align: middle;
 }
+
+.alert {
+  padding: 1em;
+  border-radius: 0.2em;
+}
+
+.primary {
+  background: $primary;
+  color: $primary-contrast-text;
+}
+
+.secondary {
+  background: $secondary;
+  color: $text-light;
+}
+
+.success {
+  background: $success;
+  color: $text-light;
+}
+
+.danger {
+  background: $danger;
+  color: $text-light;
+}
