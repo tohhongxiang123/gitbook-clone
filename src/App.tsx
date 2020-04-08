@@ -2,6 +2,7 @@ import React from 'react'
 import ViewDocuments from './views/ViewDocuments'
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
 import './styles/main.scss'
+import Login from './views/Login'
 
 export default function App() {
     return (
@@ -9,6 +10,9 @@ export default function App() {
             <Router>
                 <Route path="/" exact>
                     <Redirect to="/documents" />
+                </Route>
+                <Route path="/login">
+                    <Login />
                 </Route>
                 <Route path="/documents">
                     <ViewDocuments /> 
