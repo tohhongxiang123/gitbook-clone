@@ -16,7 +16,7 @@ export default async function getChapters(number = 10) : Promise<Chapter[]> {
             DATA.push(generateRandomChapter())
         }
         setTimeout(() => {
-            resolve(DATA)
+            Math.random() > 0.05 ? resolve(DATA) : reject('Failed to fetch because of destiny')
         }, 1000)
     })
 }

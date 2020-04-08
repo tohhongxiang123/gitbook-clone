@@ -107,7 +107,7 @@ export default function ViewDocuments() {
         <div className="home">
             <Sidebar title="Title">
                 {sidebarItems}
-                {fetchChaptersError && <InfoText variant="danger">{fetchChaptersError}</InfoText>}
+                {fetchChaptersError && <InfoText variant="danger" style={{margin: '1em'}}>{fetchChaptersError}</InfoText>}
             </Sidebar>
             <Route path={`${match.url}/:documentID`}>
                 <Previewer />
