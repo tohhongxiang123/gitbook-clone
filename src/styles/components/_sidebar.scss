@@ -28,6 +28,22 @@ $sidebar-color: $fg;
 
 .sidebar__item {
   position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.sidebar__item-valid {
+  background-color: $success;
+}
+
+.sidebar__item-dragged {
+  opacity: 0.4;
+  background: darken($sidebar-color, 10%);
+}
+
+.sidebar__item-active {
+  border: 2px solid $secondary-text-dark;
+  font-weight: bold;
 }
 
 .sidebar__item-content {
@@ -35,6 +51,8 @@ $sidebar-color: $fg;
   grid-template-columns: 1fr min-content;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0.8em;
   margin: 0;
@@ -154,4 +172,10 @@ $sidebar-color: $fg;
 .sidebar__footer {
   padding: 1em;
   border: 1px solid black;
+}
+
+// override rst styles
+.rst__nodeContent {
+  height: 100%;
+  width: 100%;
 }

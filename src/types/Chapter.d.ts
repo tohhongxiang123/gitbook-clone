@@ -4,6 +4,9 @@ export interface ChapterPreview {
     text: string
 }
 
-export interface Chapter extends Omit<ChapterPreview, 'text'> {
+export interface Chapter extends ChapterPreview {
     children: Chapter[]
 }
+
+
+export type ChapterOrder = { id: Chapter['id'], children: ChapterOrder }[]

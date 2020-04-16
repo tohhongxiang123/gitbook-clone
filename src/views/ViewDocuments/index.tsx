@@ -1,115 +1,91 @@
-import React, { useEffect, useState } from 'react'
-import Sidebar from './Sidebar'
-import Previewer from './Previewer'
-import SidebarCard from './SidebarCard'
-import client from '../../api/client'
+import React, { useState, useEffect } from 'react'
+import SortableTree, { insertNode } from 'react-sortable-tree'
 import { usePromise } from '../../api/usePromise'
-import { useRouteMatch, Route } from 'react-router-dom'
+import client from '../../api/client'
 import { Chapter } from '../../types/Chapter'
+import NodeRenderer from './NodeRenderer'
+import { useRouteMatch, Link, Route } from 'react-router-dom'
+import Previewer from './Previewer'
 import InfoText from '../../components/InfoText'
 
-type ChapterOrder = { id: Chapter['id'], children: ChapterOrder }[]
-
 export default function ViewDocuments() {
-    const [{ isLoading: isFetchingChapters, data: initialChaptersData, error: fetchChaptersError }] = usePromise(
-        (numberOfChapters: number) => client.getChapters(numberOfChapters), [], 10)
-    const [chapterOrder, setChapterOrder] = useState<ChapterOrder>([])
-    const [allChapters, setAllChapters] = useState<{ [id: string]: Chapter }>({})
+    const [{ isLoading, error, data }] = usePromise(() => client.getChapters(500), [])
+    const [chapterData, setChapterData] = useState<Chapter[]>([])
 
     useEffect(() => {
-        function getChapterIds(chapter: Chapter): ChapterOrder[number] {
-            return {
-                id: chapter.id,
-                children: chapter.children.map(childChapter => getChapterIds(childChapter))
-            }
+        if (data) {
+            setChapterData(data)
         }
+    }, [data])
 
-        function addChapterToOverallChapters(chapter: Chapter): void {
-            if (chapter.children.length > 0) {
-                chapter.children.forEach(childChapter => addChapterToOverallChapters(childChapter))
-            }
-            return setAllChapters(prevChapters => ({
-                ...prevChapters,
-                [chapter.id]: { id: chapter.id, title: chapter.title, children: [] }
-            }))
-        }
+    const generateNewChapter = (): Chapter => ({
+        id: Math.floor(Math.random() * 1000).toString(),
+        title: 'Title of the new chapter',
+        text: 'Some text nonsense',
+        children: []
+    })
 
-        if (initialChaptersData) {
-            setChapterOrder(initialChaptersData.map(chapter => getChapterIds(chapter)));
-            initialChaptersData.forEach(chapter => addChapterToOverallChapters(chapter));
-        }
-    }, [initialChaptersData])
+    const addChapter = (path: any, indexToInsertInto: number) => setChapterData(prevChapterData => insertNode({
+        treeData: prevChapterData,
+        depth: path.length - 1,
+        minimumTreeIndex: indexToInsertInto,
+        expandParent: true,
+        getNodeKey: ({ treeIndex }) => treeIndex,
+        newNode: generateNewChapter()
+    }).treeData as Chapter[])
 
-    const [{ isLoading: isAddingChapter }, handleAddChapter] = usePromise(
-        (chapter: Chapter) => client.addChapter(chapter), null
-    )
-
-    const addChapter = async (indices: number[]) => {
-        const generatedID = Math.floor(Math.random() * 1000000).toString()
-        const newChapter = {
-            id: generatedID,
-            title: 'Chapter ' + generatedID,
-            text: 'This is some random text',
-            children: [] as Chapter['children']
-        }
-
-        const { data: chapter, error } = await handleAddChapter(newChapter)
-        if (error || !chapter) return alert(error)
-
-
-        function recursivelyAddChapter(currentChapters: ChapterOrder, indices: number[], chapterId: Chapter['id']): ChapterOrder {
-            const currentIndex = indices[0]
-            const chapterToAdd = { id: chapterId, children: [] }
-
-            if (indices.length === 1) {
-                return currentIndex < 0 ?
-                    [chapterToAdd, ...currentChapters] :
-                    [...currentChapters.slice(0, currentIndex), chapterToAdd, ...currentChapters.slice(currentIndex)]
-            }
-
-            return [
-                ...currentChapters.slice(0, currentIndex),
-                {
-                    ...currentChapters[currentIndex],
-                    children: recursivelyAddChapter(currentChapters[currentIndex].children, indices.slice(1), chapterId)
-                },
-                ...currentChapters.slice(currentIndex + 1)
-            ]
-        }
-
-        setChapterOrder(prevChapters => recursivelyAddChapter(prevChapters, indices, chapter.id))
-        setAllChapters(prevChapters => ({
-            ...prevChapters,
-            [chapter.id]: newChapter
-        }))
-    }
+    const [searchQuery, setSearchQuery] = useState('')
+    const [numberOfMatches, setNumberOfMatches] = useState(0)
+    const [currentMatchToFocusOn, setCurrentMatchToFocusOn] = useState(0)
+    const searchMethod = ({ node, searchQuery }: { node: any, searchQuery: string }) => searchQuery && node.title.toLowerCase().includes(searchQuery)
 
     const match = useRouteMatch<{ documentID: string }>()
-
-    function getChapterFromIds(chapterOrder: ChapterOrder[number]): Chapter {
-        return {
-            ...allChapters[chapterOrder.id],
-            children: chapterOrder.children.length > 0 ? chapterOrder.children.map(child => getChapterFromIds(child)) : []
-        }
-    }
-
-    const sidebarItems = isFetchingChapters ?
-        <p>Loading...</p> :
-        chapterOrder.map((chapter, index) => <SidebarCard
-            {...getChapterFromIds(chapter)}
-            index={index}
-            key={chapter.id}
-            basePath={match.url}
-            addChapter={addChapter}
-            isLoading={isAddingChapter}
-        />)
     return (
         <div className="home">
-            <Sidebar title="Title">
-                {sidebarItems}
-                {fetchChaptersError && <InfoText variant="danger" style={{margin: '1em'}}>{fetchChaptersError}</InfoText>}
-            </Sidebar>
-            <Route path={`${match.url}/:documentID`}>
+            {isLoading ? <p>Loading...</p> : (
+                <nav style={{ height: '100vh', display: 'grid', gridAutoFlow: 'row', gridTemplateRows: error ? 'repeat(2, min-content) 1fr min-content' : 'min-content 1fr min-content' }}>
+                    <h2>This is the title</h2>
+                    {error && <InfoText variant="danger">{error}</InfoText>}
+                    <SortableTree nodeContentRenderer={NodeRenderer as any}
+                        searchQuery={searchQuery}
+                        scaffoldBlockPxWidth={0}
+                        generateNodeProps={({ node, path, treeIndex }) => ({
+                            title: <Link to={`${match.url}/${node.id}`}>{node.title}</Link>,
+                            buttons: [
+                                <div className="sidebar__addItemContainer sidebar__addItemContainer-top">
+                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                        <button className="sidebar__addItemButton" onClick={() => addChapter(path, treeIndex)}>+</button>
+                                        <hr className="sidebar__item-border" />
+                                    </div>
+                                </div>,
+                                <div className="sidebar__addItemContainer sidebar__addItemContainer-bottom">
+                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                        <button className="sidebar__addItemButton" onClick={() => addChapter(path, treeIndex + 1)}>+</button>
+                                        <hr className="sidebar__item-border" />
+                                    </div>
+                                </div>
+                            ]
+                        })}
+                        onlyExpandSearchedNodes={true}
+                        searchMethod={searchMethod}
+                        searchFocusOffset={currentMatchToFocusOn}
+                        searchFinishCallback={matches => setNumberOfMatches(matches.length)}
+                        style={{ width: '300px', overflowX: 'hidden', height: '100%' }}
+                        treeData={chapterData} onChange={data => setChapterData(data as any)} />
+                    <div style={{ padding: '0.375em' }}>
+                        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                            {numberOfMatches > 0 && <div>
+                                <button onClick={() => setCurrentMatchToFocusOn(prev => (prev - 1 + numberOfMatches) % numberOfMatches)}>&lt;</button>
+                                <button onClick={() => setCurrentMatchToFocusOn(prev => (prev + 1) % numberOfMatches)}>&gt;</button>
+                            </div>}
+                        </div>
+                        {searchQuery ? <p style={{ textAlign: 'right', margin: 0 }}><small>{numberOfMatches > 0 ? `${currentMatchToFocusOn + 1}/${numberOfMatches}` : 'No matches'}</small></p> : null}
+                    </div>
+                </nav>
+            )}
+
+            <Route path={`${match.path}/:documentID`}>
                 <Previewer />
             </Route>
         </div>

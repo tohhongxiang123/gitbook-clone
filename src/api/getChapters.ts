@@ -5,7 +5,8 @@ function generateRandomChapter(depth = 0): Chapter {
     return {
         id,
         title: `Chapter ${id}`,
-        children: Math.random() > 0.5 && depth < 5 ? [...Array(Math.floor(Math.random() * 10))].map(e => generateRandomChapter(depth + 1)) : []
+        text: 'Hello cruel world',
+        children: Math.random() > 0.4 && depth < 5 ? [...Array(Math.floor(Math.random() * 5))].map(e => generateRandomChapter(depth + 1)) : []
     }
 }
 
@@ -16,7 +17,7 @@ export default async function getChapters(number = 10) : Promise<Chapter[]> {
             DATA.push(generateRandomChapter())
         }
         setTimeout(() => {
-            Math.random() > 0.05 ? resolve(DATA) : reject('Failed to fetch because of destiny')
+            Math.random() > 0.01 ? resolve(DATA) : reject('Failed to fetch because of destiny')
         }, 1000)
     })
 }

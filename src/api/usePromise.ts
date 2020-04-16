@@ -4,12 +4,11 @@ import { useState, useCallback, useEffect } from "react";
  * 
  * @param promise Function (which returns a promise) to run 
  * @param initialData Initial data before promise runs
- * @param initialArgs Initial arguments for promise. If not provided, promise does not run on initialisation of hook
+ * @param initialArgs Initial arguments for promise. If not provided, promise does not run on initialisation of hook. If promise takes in 0 arguments, initialArgs should be either true or false. True will make promise run immediately
  * 
  * @returns [{isLoading, error, data}, executePromise]. executePromise returns {data, error}, error is null if promise resolves. Data is null if promise rejects
  */
-
-export function usePromise<T, U extends any[]>(promise: (...args: U) => Promise<T>, initialData: T, ...initialArgs: U | []) {
+function usePromise<T, U extends any[]>(promise: (...args: U) => Promise<T>, initialData: T, ...initialArgs: U | [boolean]) {
     const [isLoading, setIsLoading] = useState(false)
     const [data, setData] = useState<T>(initialData)
     const [error, setError] = useState<string | null>(null)
@@ -36,10 +35,10 @@ export function usePromise<T, U extends any[]>(promise: (...args: U) => Promise<
 
     // if initialArgs, run hook
     useEffect(() => {
-        if (_initialArgs.length > 0) {
+        if ((promise.length === 0 && _initialArgs[0]) || (_initialArgs.length === promise.length)) {
             runPromise(..._initialArgs as U)
         }
-    }, [runPromise, _initialArgs])
+    }, [runPromise, _initialArgs, promise.length])
 
     // if initialArgs change, replace
     useEffect(() => {
@@ -51,3 +50,5 @@ export function usePromise<T, U extends any[]>(promise: (...args: U) => Promise<
 
     return [{ isLoading, error, data }, runPromise] as const
 }
+
+export { usePromise }

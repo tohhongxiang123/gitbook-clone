@@ -1,10 +1,13 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useRouteMatch } from 'react-router-dom'
 import client from '../../api/client'
 import { usePromise } from '../../api/usePromise'
 
 export default function Previewer() {
-    const { documentID } = useParams<{ documentID: string }>()
+    const params = useParams<{ documentID: string }>()
+    const documentID = params.documentID
+    const match = useRouteMatch()
+    console.log(match)
     const [{ isLoading, error, data: chapter }] = usePromise((documentID: string) => client.getChapter(documentID), null, documentID)
 
 
